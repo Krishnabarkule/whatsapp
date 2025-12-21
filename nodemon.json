@@ -1,0 +1,15 @@
+{
+	"watch": ["backend/**/*.js"],
+	"ignore": [
+		"sessions/**",
+		"sessions",
+		"uploads/**",
+		"media/**",
+		"*.log",
+		"node_modules/**",
+		"frontend/**"
+	],
+	"ext": "js,json",
+	"delay": 2000,
+	"verbose": false
+}
