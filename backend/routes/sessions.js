@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const SessionManager = require("../services/SessionManager");
+const { protect } = require("../middleware/auth");
 
 let sessionManager = null;
+
+// Protect all session routes
+router.use(protect);
 
 // Initialize session manager
 router.use((req, res, next) => {

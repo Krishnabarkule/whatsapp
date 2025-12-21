@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const { delay } = require("@whiskeysockets/baileys");
+const MessageLog = require("../models/MessageLog");
+const User = require("../models/User");
 
 class MessageService {
 	constructor(io) {
@@ -23,8 +25,13 @@ class MessageService {
 		session,
 		contacts,
 		template,
-		mediaPath = null
+		mediaPath = null,
+		user = null
 	) {
+		console.log("=== sendBulkMessages called ===");
+		console.log("User provided:", user ? `Yes (userId: ${user.userId})` : "No");
+		console.log("Contacts count:", contacts.length);
+
 		const queueId = `${sessionId}_${Date.now()}`;
 
 		this.sendingQueue.set(queueId, {
@@ -49,6 +56,8 @@ class MessageService {
 				mediaType = "audio";
 			}
 		}
+
+		let successCount = 0;
 
 		for (let i = 0; i < contacts.length; i++) {
 			const queueStatus = this.sendingQueue.get(queueId);
@@ -99,6 +108,20 @@ class MessageService {
 				await session.socket.sendMessage(result.jid, messageContent);
 
 				queueStatus.sent++;
+				successCount++;
+
+				// Log to database if user provided
+				if (user) {
+					await MessageLog.create({
+						userId: user.userId,
+						sessionId,
+						recipientName: contact.name || "",
+						recipientPhone: contact.phone,
+						message,
+						mediaType: mediaType || "none",
+						status: "sent",
+					});
+				}
 
 				const log = {
 					timestamp: new Date(),
@@ -115,6 +138,20 @@ class MessageService {
 			} catch (error) {
 				queueStatus.failed++;
 
+				// Log failed message to database if user provided
+				if (user) {
+					await MessageLog.create({
+						userId: user.userId,
+						sessionId,
+						recipientName: contact.name || "",
+						recipientPhone: contact.phone,
+						message,
+						mediaType: mediaType || "none",
+						status: "failed",
+						error: error.message,
+					});
+				}
+
 				const log = {
 					timestamp: new Date(),
 					phone: contact.phone,
@@ -127,6 +164,15 @@ class MessageService {
 			}
 
 			this.sendingQueue.set(queueId, queueStatus);
+		}
+
+		// Increment user usage after all messages sent
+		if (user && successCount > 0) {
+			try {
+				await user.incrementUsage(successCount);
+			} catch (error) {
+				console.error("Failed to increment user usage:", error);
+			}
 		}
 
 		const finalStatus = this.sendingQueue.get(queueId);

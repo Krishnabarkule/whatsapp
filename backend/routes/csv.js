@@ -4,6 +4,10 @@ const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 const path = require("path");
+const { protect } = require("../middleware/auth");
+
+// Protect all CSV routes
+router.use(protect);
 
 // Multer configuration for CSV upload
 const storage = multer.diskStorage({

@@ -3,8 +3,14 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const MessageService = require("../services/MessageService");
+const { protect, checkMessageLimits } = require("../middleware/auth");
+const User = require("../models/User");
+const MessageLog = require("../models/MessageLog");
 
 let messageService = null;
+
+// Protect all message routes
+router.use(protect);
 
 // Initialize services - get sessionManager from sessions route
 router.use((req, res, next) => {
@@ -33,45 +39,51 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Send bulk messages
-router.post("/send-bulk", upload.single("media"), async (req, res) => {
-	try {
-		const { sessionId, contacts, template } = req.body;
+router.post(
+	"/send-bulk",
+	upload.single("media"),
+	checkMessageLimits,
+	async (req, res) => {
+		try {
+			const { sessionId, contacts, template } = req.body;
 
-		if (!sessionId || !contacts || !template) {
-			return res.status(400).json({ error: "Missing required fields" });
+			if (!sessionId || !contacts || !template) {
+				return res.status(400).json({ error: "Missing required fields" });
+			}
+
+			const session = req.sessionManager.getSession(sessionId);
+
+			if (!session) {
+				return res.status(404).json({ error: "Session not found" });
+			}
+
+			if (session.status !== "connected") {
+				return res.status(400).json({ error: "Session is not connected" });
+			}
+
+			const parsedContacts = JSON.parse(contacts);
+			const mediaPath = req.file ? req.file.path : null;
+
+			// Start sending in background
+			const queueId = await req.messageService.sendBulkMessages(
+				sessionId,
+				session,
+				parsedContacts,
+				template,
+				mediaPath,
+				req.user // Pass user for logging
+			);
+
+			res.json({
+				success: true,
+				queueId,
+				message: "Bulk sending started",
+			});
+		} catch (error) {
+			res.status(500).json({ error: error.message });
 		}
-
-		const session = req.sessionManager.getSession(sessionId);
-
-		if (!session) {
-			return res.status(404).json({ error: "Session not found" });
-		}
-
-		if (session.status !== "connected") {
-			return res.status(400).json({ error: "Session is not connected" });
-		}
-
-		const parsedContacts = JSON.parse(contacts);
-		const mediaPath = req.file ? req.file.path : null;
-
-		// Start sending in background
-		const queueId = await req.messageService.sendBulkMessages(
-			sessionId,
-			session,
-			parsedContacts,
-			template,
-			mediaPath
-		);
-
-		res.json({
-			success: true,
-			queueId,
-			message: "Bulk sending started",
-		});
-	} catch (error) {
-		res.status(500).json({ error: error.message });
 	}
-});
+);
 
 // Pause sending
 router.post("/pause/:queueId", (req, res) => {

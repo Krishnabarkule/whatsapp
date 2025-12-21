@@ -5,38 +5,60 @@
 }
 
 :root {
-	/* WhatsApp Theme Colors */
+	/* WhatsApp Theme Colors - Primary */
 	--wa-green: #25d366;
 	--wa-green-dark: #128c7e;
+	--wa-green-darker: #075e54;
 	--wa-green-light: #dcf8c6;
 	--wa-teal: #075e54;
 	--wa-blue: #34b7f1;
 
-	/* UI Colors */
-	--bg-primary: #0a1e2b;
-	--bg-secondary: #0f2937;
-	--bg-tertiary: #1a3a4a;
+	/* Background Colors */
+	--bg-primary: #f0f2f5;
+	--bg-secondary: #ffffff;
+	--bg-tertiary: #e9edef;
+	--bg-gradient: linear-gradient(135deg, #128c7e 0%, #075e54 100%);
+
+	/* Surface Colors */
 	--surface: #ffffff;
 	--surface-hover: #f5f6f8;
-	--border: #e4e7eb;
-	--text-primary: #1e293b;
-	--text-secondary: #64748b;
-	--text-tertiary: #94a3b8;
+	--border: #e9edef;
+	--border-light: #f0f2f5;
+
+	/* Text Colors */
+	--text-primary: #111b21;
+	--text-secondary: #667781;
+	--text-tertiary: #8696a0;
+	--text-white: #ffffff;
 
 	/* Status Colors */
-	--success: #10b981;
+	--success: #25d366;
 	--success-light: #d1fae5;
-	--error: #ef4444;
+	--error: #dc2626;
 	--error-light: #fee2e2;
 	--warning: #f59e0b;
 	--warning-light: #fef3c7;
 	--info: #3b82f6;
+	--info-light: #dbeafe;
 
 	/* Shadows */
-	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-	--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	--shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+	--shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+	/* Border Radius */
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+
+	/* Spacing */
+	--spacing-xs: 4px;
+	--spacing-sm: 8px;
+	--spacing-md: 16px;
+	--spacing-lg: 24px;
+	--spacing-xl: 32px;
 }
 
 body {
@@ -45,8 +67,9 @@ body {
 		sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	background: linear-gradient(135deg, #0a1e2b 0%, #1a3a4a 100%);
+	background: var(--bg-primary);
 	min-height: 100vh;
+	color: var(--text-primary);
 }
 
 #root {
