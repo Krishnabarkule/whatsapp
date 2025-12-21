@@ -1,0 +1,15 @@
+{
+	"name": "wm-electron",
+	"version": "0.1.0",
+	"private": true,
+	"main": "main.js",
+	"scripts": {
+		"dev": "electron .",
+		"build:mac": "echo 'package with electron-builder here'",
+		"build:win": "echo 'package with electron-builder here'"
+	},
+	"dependencies": {
+		"electron": "^31.0.2",
+		"wait-on": "^7.2.0"
+	}
+}

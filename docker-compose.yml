@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    container_name: wm-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+  redis:
+    image: redis:7-alpine
+    container_name: wm-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+  backend:
+    build: ./backend
+    container_name: wm-backend
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/whatsapp_marketing
+      - JWT_SECRET=devsecret
+      - PORT=3000
+      - STORAGE_DIR=/app/storage
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SEED_ADMIN=true
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - ADMIN_PHONE=+10000000000
+    volumes:
+      - ./storage:/app/storage
+    ports:
+      - "3000:3000"
+  frontend:
+    build: ./frontend
+    container_name: wm-frontend
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    ports:
+      - "5173:80"
+volumes:
+  mongo_data:
