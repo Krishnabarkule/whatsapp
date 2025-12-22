@@ -32,6 +32,19 @@ class MessageService {
 		console.log("User provided:", user ? `Yes (userId: ${user.userId})` : "No");
 		console.log("Contacts count:", contacts.length);
 
+		// Check if there's already an active queue for this session
+		for (const [existingQueueId, queue] of this.sendingQueue.entries()) {
+			if (
+				existingQueueId.startsWith(sessionId + "_") &&
+				(queue.status === "running" || queue.status === "paused")
+			) {
+				console.log("Already have active queue for session:", sessionId);
+				throw new Error(
+					"A message sending operation is already in progress for this session"
+				);
+			}
+		}
+
 		const queueId = `${sessionId}_${Date.now()}`;
 
 		this.sendingQueue.set(queueId, {
@@ -59,7 +72,13 @@ class MessageService {
 
 		let successCount = 0;
 
+		console.log(`Starting loop for ${contacts.length} contacts`);
+
 		for (let i = 0; i < contacts.length; i++) {
+			console.log(
+				`Processing contact ${i + 1}/${contacts.length}: ${contacts[i].phone}`
+			);
+
 			const queueStatus = this.sendingQueue.get(queueId);
 
 			if (queueStatus.status === "paused") {
@@ -69,11 +88,54 @@ class MessageService {
 			}
 
 			if (queueStatus.status === "stopped") {
+				console.log("Queue stopped, breaking loop");
 				break;
 			}
 
 			const contact = contacts[i];
 			const message = this.processTemplate(template, contact);
+
+			// Check if user has reached any limit before sending
+			if (user) {
+				const limitCheck = user.canSendMessages(1);
+				if (!limitCheck.allowed) {
+					queueStatus.failed++;
+
+					// Determine which limit was exceeded
+					let limitType = "";
+					if (limitCheck.dailyRemaining <= 0) limitType = "daily";
+					else if (limitCheck.monthlyRemaining <= 0) limitType = "monthly";
+					else if (limitCheck.yearlyRemaining <= 0) limitType = "yearly";
+
+					// Log failed message due to limit
+					await MessageLog.create({
+						userId: user.userId,
+						sessionId,
+						recipientName: contact.name || "",
+						recipientPhone: contact.phone,
+						message,
+						mediaType: mediaType || "none",
+						status: "failed",
+						error: `Message limit exceeded (${limitType} limit reached)`,
+					});
+
+					const log = {
+						timestamp: new Date(),
+						phone: contact.phone,
+						status: "failed",
+						message: `Message limit exceeded (${limitType} limit reached)`,
+					};
+
+					this.deliveryLogs.push(log);
+					this.io.emit("message_failed", {
+						queueId,
+						log,
+						progress: queueStatus,
+					});
+					this.sendingQueue.set(queueId, queueStatus);
+					continue; // Skip to next contact
+				}
+			}
 
 			try {
 				let jid = contact.phone;
@@ -109,6 +171,15 @@ class MessageService {
 
 				queueStatus.sent++;
 				successCount++;
+
+				// Increment user usage immediately after successful send
+				if (user) {
+					try {
+						await user.incrementUsage(1);
+					} catch (error) {
+						console.error("Failed to increment user usage:", error);
+					}
+				}
 
 				// Log to database if user provided
 				if (user) {
@@ -166,18 +237,17 @@ class MessageService {
 			this.sendingQueue.set(queueId, queueStatus);
 		}
 
-		// Increment user usage after all messages sent
-		if (user && successCount > 0) {
-			try {
-				await user.incrementUsage(successCount);
-			} catch (error) {
-				console.error("Failed to increment user usage:", error);
-			}
-		}
+		console.log(
+			`Loop completed. Processed ${contacts.length} contacts. Success: ${successCount}`
+		);
+
+		// Usage is now incremented after each successful message above
+		// No need to increment again here
 
 		const finalStatus = this.sendingQueue.get(queueId);
 		finalStatus.status = "completed";
 		this.sendingQueue.set(queueId, finalStatus);
+		console.log("Sending completed event with final status:", finalStatus);
 		this.io.emit("sending_completed", { queueId, finalStatus });
 
 		return queueId;

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Send, Activity, Wifi, Home } from "lucide-react";
+import { Send, Activity, Wifi, Home, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SessionManagement from "./components/SessionManagement";
 import StartMessaging from "./components/StartMessaging";
 import DeliveryLogs from "./components/DeliveryLogs";
+import Reports from "./components/Reports";
+import DashboardContent from "./components/DashboardContent";
 import { io } from "socket.io-client";
 import axios from "axios";
 
@@ -20,8 +22,18 @@ function MainApp({ initialMenu = "sessions" }) {
 	useEffect(() => {
 		loadSessions();
 
+		// Socket connection status
+		socket.on("connect", () => {
+			console.log("Socket connected:", socket.id);
+		});
+
+		socket.on("disconnect", () => {
+			console.log("Socket disconnected");
+		});
+
 		// Socket listeners
 		socket.on("qr", (data) => {
+			console.log("QR code received:", data.sessionId);
 			setSessions((prev) =>
 				prev.map((s) =>
 					s.id === data.sessionId
@@ -32,6 +44,7 @@ function MainApp({ initialMenu = "sessions" }) {
 		});
 
 		socket.on("pairing_code", (data) => {
+			console.log("Pairing code received:", data.sessionId, data.code);
 			setSessions((prev) =>
 				prev.map((s) =>
 					s.id === data.sessionId
@@ -42,6 +55,7 @@ function MainApp({ initialMenu = "sessions" }) {
 		});
 
 		socket.on("session_connected", (data) => {
+			console.log("Session connected:", data.sessionId);
 			setSessions((prev) =>
 				prev.map((s) =>
 					s.id === data.sessionId
@@ -71,9 +85,15 @@ function MainApp({ initialMenu = "sessions" }) {
 
 		socket.on("sending_completed", (data) => {
 			setSendingStatus(data.finalStatus);
+			// Reset sending state after completion
+			setTimeout(() => {
+				setSendingStatus(null);
+			}, 3000); // Show final status for 3 seconds
 		});
 
 		return () => {
+			socket.off("connect");
+			socket.off("disconnect");
 			socket.off("qr");
 			socket.off("pairing_code");
 			socket.off("session_connected");
@@ -87,7 +107,9 @@ function MainApp({ initialMenu = "sessions" }) {
 
 	const loadSessions = async () => {
 		try {
+			console.log("Loading sessions...");
 			const response = await axios.get("/api/sessions/list");
+			console.log("Sessions loaded:", response.data.sessions);
 			setSessions(response.data.sessions);
 		} catch (error) {
 			console.error("Failed to load sessions:", error);
@@ -109,15 +131,12 @@ function MainApp({ initialMenu = "sessions" }) {
 			path: "/messaging",
 		},
 		{ id: "logs", label: "Delivery Logs", icon: Activity, path: "/logs" },
+		{ id: "reports", label: "Reports", icon: BarChart3, path: "/reports" },
 	];
 
 	const handleMenuClick = (item) => {
-		if (item.id === "dashboard") {
-			navigate("/dashboard");
-		} else {
-			setActiveMenu(item.id);
-			navigate(item.path);
-		}
+		setActiveMenu(item.id);
+		navigate(item.path);
 	};
 
 	return (
@@ -140,6 +159,7 @@ function MainApp({ initialMenu = "sessions" }) {
 			</div>
 
 			<div className="main-content">
+				{activeMenu === "dashboard" && <DashboardContent />}
 				{activeMenu === "sessions" && (
 					<SessionManagement
 						sessions={sessions}
@@ -158,6 +178,7 @@ function MainApp({ initialMenu = "sessions" }) {
 					/>
 				)}
 				{activeMenu === "logs" && <DeliveryLogs logs={logs} />}
+				{activeMenu === "reports" && <Reports />}
 			</div>
 		</div>
 	);

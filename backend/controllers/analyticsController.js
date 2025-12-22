@@ -85,6 +85,11 @@ exports.getDashboardStats = async (req, res) => {
 				daily: formatStats(dailyStats),
 				monthly: formatStats(monthlyStats),
 				yearly: formatStats(yearlyStats),
+				usage: {
+					dailyUsage: user.dailyUsage,
+					monthlyUsage: user.monthlyUsage,
+					yearlyUsage: user.yearlyUsage,
+				},
 				limits: {
 					dailyLimit: user.dailyLimit,
 					dailyUsed: user.dailyUsage,

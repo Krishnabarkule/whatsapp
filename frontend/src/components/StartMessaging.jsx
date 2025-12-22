@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Send,
 	Upload,
@@ -39,6 +39,13 @@ export default function StartMessaging({
 	// Sending State
 	const [currentQueueId, setCurrentQueueId] = useState(null);
 	const [sending, setSending] = useState(false);
+
+	// Auto-stop sending when completed
+	useEffect(() => {
+		if (sendingStatus?.status === "completed") {
+			setSending(false);
+		}
+	}, [sendingStatus]);
 
 	// Current Step
 	const [currentStep, setCurrentStep] = useState(1);
@@ -139,6 +146,12 @@ export default function StartMessaging({
 
 	// Sending Handlers
 	const handleStartSending = async () => {
+		// Prevent duplicate calls
+		if (sending) {
+			console.log("Already sending, ignoring duplicate request");
+			return;
+		}
+
 		if (!selectedSession) {
 			alert("Please select a session first");
 			return;
@@ -159,6 +172,7 @@ export default function StartMessaging({
 		}
 
 		setSending(true);
+		console.log("Starting send to", contacts.length, "contacts");
 
 		try {
 			const formData = new FormData();
@@ -178,8 +192,10 @@ export default function StartMessaging({
 
 			setCurrentQueueId(response.data.queueId);
 			setCurrentStep(4);
+			console.log("Send started with queueId:", response.data.queueId);
 			alert("Bulk sending started!");
 		} catch (error) {
+			console.error("Failed to start sending:", error);
 			alert(
 				"Failed to start sending: " +
 					(error.response?.data?.error || error.message)
@@ -528,41 +544,69 @@ export default function StartMessaging({
 							className="btn btn-primary"
 							onClick={handleStartSending}
 							style={{ marginTop: "15px" }}
-							disabled={!template || contacts.length === 0}
+							disabled={!template || contacts.length === 0 || sending}
 						>
 							<Send size={18} />
-							Start Sending Messages
+							{sending ? "Sending..." : "Start Sending Messages"}
 						</button>
 					</div>
 				</div>
 			)}
 
-			{/* Step 4: Sending Progress */}
+			{/* Step 4: Sending Progress - Enhanced Real-time Tracker */}
 			{currentStep >= 4 && sendingStatus && (
-				<div className="card">
-					<div className="card-header">
-						<h3>Step 4: Sending Progress</h3>
+				<div
+					className="card"
+					style={{
+						borderLeft:
+							sendingStatus.status === "sending"
+								? "4px solid #25d366"
+								: sendingStatus.status === "completed"
+								? "4px solid #10b981"
+								: sendingStatus.status === "paused"
+								? "4px solid #f59e0b"
+								: "4px solid #6b7280",
+					}}
+				>
+					<div
+						className="card-header"
+						style={{
+							background:
+								sendingStatus.status === "sending"
+									? "linear-gradient(135deg, #d1fae5, #a7f3d0)"
+									: sendingStatus.status === "completed"
+									? "linear-gradient(135deg, #bfdbfe, #93c5fd)"
+									: "#f8fafc",
+						}}
+					>
+						<h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+							{sendingStatus.status === "sending" && "🚀"}
+							{sendingStatus.status === "completed" && "✅"}
+							{sendingStatus.status === "paused" && "⏸️"}
+							{sendingStatus.status === "stopped" && "🛑"}
+							Real-time Sending Progress
+						</h3>
 					</div>
 
 					<div style={{ padding: "20px" }}>
-						{/* Real-time Status Badge */}
+						{/* Real-time Status Badge with Pulse Animation */}
 						<div
 							style={{
 								display: "inline-flex",
 								alignItems: "center",
 								gap: "8px",
-								padding: "8px 16px",
-								borderRadius: "20px",
-								fontSize: "13px",
-								fontWeight: "600",
+								padding: "10px 20px",
+								borderRadius: "25px",
+								fontSize: "14px",
+								fontWeight: "700",
 								marginBottom: "20px",
 								background:
 									sendingStatus.status === "sending"
-										? "#fef3c7"
+										? "linear-gradient(135deg, #fef3c7, #fde68a)"
 										: sendingStatus.status === "completed"
-										? "#d1fae5"
+										? "linear-gradient(135deg, #d1fae5, #a7f3d0)"
 										: sendingStatus.status === "paused"
-										? "#fee2e2"
+										? "linear-gradient(135deg, #fee2e2, #fecaca)"
 										: "#f3f4f6",
 								color:
 									sendingStatus.status === "sending"
@@ -572,12 +616,22 @@ export default function StartMessaging({
 										: sendingStatus.status === "paused"
 										? "#ef4444"
 										: "#6b7280",
+								boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+								border:
+									"2px solid " +
+									(sendingStatus.status === "sending"
+										? "#f59e0b"
+										: sendingStatus.status === "completed"
+										? "#10b981"
+										: sendingStatus.status === "paused"
+										? "#ef4444"
+										: "#6b7280"),
 							}}
 						>
 							<span
 								style={{
-									width: "8px",
-									height: "8px",
+									width: "10px",
+									height: "10px",
 									borderRadius: "50%",
 									background:
 										sendingStatus.status === "sending"
@@ -593,196 +647,494 @@ export default function StartMessaging({
 											: "none",
 								}}
 							/>
-							{sendingStatus.status === "sending" && "🚀 Sending in Progress"}
-							{sendingStatus.status === "completed" && "✅ Completed"}
-							{sendingStatus.status === "paused" && "⏸️ Paused"}
-							{sendingStatus.status === "stopped" && "🛑 Stopped"}
+							{sendingStatus.status === "sending" && "SENDING IN PROGRESS"}
+							{sendingStatus.status === "completed" && "COMPLETED SUCCESSFULLY"}
+							{sendingStatus.status === "paused" && "PAUSED"}
+							{sendingStatus.status === "stopped" && "STOPPED"}
 						</div>
 
 						{/* Completion Message */}
 						{sendingStatus.status === "completed" && (
 							<div
 								style={{
-									padding: "20px",
+									padding: "25px",
 									background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
-									borderRadius: "12px",
-									marginBottom: "20px",
-									border: "2px solid #10b981",
+									borderRadius: "15px",
+									marginBottom: "25px",
+									border: "3px solid #10b981",
 									textAlign: "center",
+									boxShadow: "0 8px 16px rgba(16, 185, 129, 0.2)",
 								}}
 							>
 								<CheckCircle
-									size={48}
-									style={{ color: "#10b981", marginBottom: "10px" }}
+									size={60}
+									style={{ color: "#10b981", marginBottom: "15px" }}
 								/>
-								<h3 style={{ color: "#065f46", marginBottom: "8px" }}>
-									🎉 All Messages Sent!
+								<h3
+									style={{
+										color: "#065f46",
+										marginBottom: "12px",
+										fontSize: "24px",
+									}}
+								>
+									🎉 All Messages Sent Successfully!
 								</h3>
-								<p style={{ color: "#047857", fontSize: "14px" }}>
-									Successfully delivered {sendingStatus.sent} out of{" "}
-									{sendingStatus.total} messages
+								<p
+									style={{
+										color: "#047857",
+										fontSize: "16px",
+										marginBottom: "10px",
+									}}
+								>
+									Successfully delivered <strong>{sendingStatus.sent}</strong>{" "}
+									out of <strong>{sendingStatus.total}</strong> messages
 								</p>
+								<div
+									style={{
+										fontSize: "14px",
+										color: "#065f46",
+										marginTop: "12px",
+										display: "flex",
+										justifyContent: "center",
+										gap: "20px",
+										flexWrap: "wrap",
+									}}
+								>
+									<span>
+										✅ Success Rate:{" "}
+										<strong>
+											{sendingStatus.total > 0
+												? Math.round(
+														(sendingStatus.sent / sendingStatus.total) * 100
+												  )
+												: 0}
+											%
+										</strong>
+									</span>
+									{sendingStatus.failed > 0 && (
+										<span>
+											❌ Failed: <strong>{sendingStatus.failed}</strong>
+										</span>
+									)}
+								</div>
 							</div>
 						)}
 
-						{/* Progress Bar with Animation */}
-						<div style={{ marginBottom: "20px" }}>
+						{/* Live Progress Indicator */}
+						{sendingStatus.status === "sending" && (
+							<div
+								style={{
+									padding: "15px",
+									background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+									borderRadius: "10px",
+									marginBottom: "20px",
+									border: "2px solid #3b82f6",
+									textAlign: "center",
+								}}
+							>
+								<div
+									style={{
+										fontSize: "14px",
+										color: "#1e40af",
+										marginBottom: "8px",
+										fontWeight: "600",
+									}}
+								>
+									⏳ Currently Processing
+								</div>
+								<div
+									style={{
+										fontSize: "18px",
+										color: "#1e3a8a",
+										fontWeight: "700",
+									}}
+								>
+									Message {sendingStatus.sent + sendingStatus.failed + 1} of{" "}
+									{sendingStatus.total}
+								</div>
+							</div>
+						)}
+
+						{/* Enhanced Progress Bar with Percentage */}
+						<div style={{ marginBottom: "25px" }}>
 							<div
 								style={{
 									display: "flex",
 									justifyContent: "space-between",
-									marginBottom: "10px",
+									marginBottom: "12px",
 									alignItems: "center",
 								}}
 							>
-								<span style={{ fontWeight: "600", fontSize: "15px" }}>
+								<span
+									style={{
+										fontWeight: "700",
+										fontSize: "16px",
+										color: "#1e293b",
+									}}
+								>
 									Overall Progress
 								</span>
 								<span
 									style={{
-										fontWeight: "700",
-										fontSize: "18px",
+										fontWeight: "900",
+										fontSize: "24px",
 										color: "#25d366",
+										textShadow: "0 2px 4px rgba(37, 211, 102, 0.3)",
 									}}
 								>
 									{getProgressPercentage()}%
 								</span>
 							</div>
-							<div className="progress-bar">
-								<div
-									className="progress-fill"
-									style={{
-										width: `${getProgressPercentage()}%`,
-									}}
-								>
-									{getProgressPercentage()}%
-								</div>
-							</div>
-							{/* Current Status Text */}
+
+							{/* Main Progress Bar */}
 							<div
 								style={{
-									marginTop: "10px",
+									height: "32px",
+									background: "#e2e8f0",
+									borderRadius: "20px",
+									overflow: "hidden",
+									position: "relative",
+									boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)",
+								}}
+							>
+								<div
+									style={{
+										height: "100%",
+										width: `${getProgressPercentage()}%`,
+										background:
+											sendingStatus.status === "completed"
+												? "linear-gradient(90deg, #10b981, #059669)"
+												: "linear-gradient(90deg, #25d366, #128c7e)",
+										borderRadius: "20px",
+										transition: "width 0.5s ease-in-out",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										color: "white",
+										fontWeight: "700",
+										fontSize: "14px",
+										boxShadow: "0 2px 8px rgba(37, 211, 102, 0.4)",
+										position: "relative",
+										overflow: "hidden",
+									}}
+								>
+									{getProgressPercentage() > 10 && (
+										<span style={{ position: "relative", zIndex: 1 }}>
+											{sendingStatus.sent + sendingStatus.failed} /{" "}
+											{sendingStatus.total}
+										</span>
+									)}
+									{sendingStatus.status === "sending" && (
+										<div
+											style={{
+												position: "absolute",
+												top: 0,
+												left: 0,
+												right: 0,
+												bottom: 0,
+												background:
+													"linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+												animation: "shimmer 2s infinite",
+											}}
+										/>
+									)}
+								</div>
+							</div>
+
+							{/* Status Text Below Progress */}
+							<div
+								style={{
+									marginTop: "12px",
 									textAlign: "center",
-									fontSize: "13px",
-									color: "#64748b",
-									fontWeight: "500",
+									fontSize: "14px",
+									color: "#475569",
+									fontWeight: "600",
 								}}
 							>
 								{sendingStatus.status === "sending" && (
 									<>
-										⏳ Sending message{" "}
-										{sendingStatus.sent + sendingStatus.failed + 1} of{" "}
-										{sendingStatus.total}...
+										⏳ Processing...{" "}
+										{sendingStatus.total -
+											(sendingStatus.sent + sendingStatus.failed)}{" "}
+										messages remaining
 									</>
 								)}
 								{sendingStatus.status === "paused" && (
 									<>
 										⏸️ Paused at message{" "}
-										{sendingStatus.sent + sendingStatus.failed}
+										{sendingStatus.sent + sendingStatus.failed} of{" "}
+										{sendingStatus.total}
 									</>
 								)}
 								{sendingStatus.status === "completed" && (
 									<>✅ All {sendingStatus.total} messages have been processed</>
 								)}
 							</div>
+						</div>
 
-							{/* Statistics Cards */}
+						{/* Enhanced Statistics Cards with Gradients */}
+						<div
+							style={{
+								display: "grid",
+								gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+								gap: "15px",
+								marginBottom: "25px",
+							}}
+						>
+							{/* Sent Card */}
 							<div
 								style={{
-									display: "grid",
-									gridTemplateColumns: "1fr 1fr 1fr",
-									gap: "15px",
-									marginBottom: "20px",
+									textAlign: "center",
+									padding: "20px 15px",
+									background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
+									borderRadius: "12px",
+									border: "2px solid #10b981",
+									boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
+									transition: "transform 0.2s",
 								}}
+								onMouseOver={(e) =>
+									(e.currentTarget.style.transform = "scale(1.05)")
+								}
+								onMouseOut={(e) =>
+									(e.currentTarget.style.transform = "scale(1)")
+								}
 							>
+								<CheckCircle
+									size={28}
+									style={{ color: "#059669", marginBottom: "8px" }}
+								/>
 								<div
 									style={{
-										textAlign: "center",
-										padding: "15px",
-										background: "#e8f5e9",
-										borderRadius: "8px",
+										fontSize: "32px",
+										fontWeight: "800",
+										color: "#065f46",
+										lineHeight: "1",
+										marginBottom: "5px",
 									}}
 								>
-									<div
-										style={{
-											fontSize: "24px",
-											fontWeight: "600",
-											color: "#27ae60",
-										}}
-									>
-										{sendingStatus.sent}
-									</div>
-									<div style={{ fontSize: "13px", color: "#7f8c8d" }}>Sent</div>
+									{sendingStatus.sent}
 								</div>
 								<div
 									style={{
-										textAlign: "center",
-										padding: "15px",
-										background: "#ffebee",
-										borderRadius: "8px",
+										fontSize: "13px",
+										color: "#047857",
+										fontWeight: "600",
 									}}
 								>
+									Successfully Sent
+								</div>
+								{sendingStatus.total > 0 && (
 									<div
 										style={{
-											fontSize: "24px",
-											fontWeight: "600",
-											color: "#e74c3c",
+											fontSize: "11px",
+											color: "#059669",
+											marginTop: "5px",
 										}}
 									>
-										{sendingStatus.failed}
+										{Math.round(
+											(sendingStatus.sent / sendingStatus.total) * 100
+										)}
+										% Success
 									</div>
-									<div style={{ fontSize: "13px", color: "#7f8c8d" }}>
-										Failed
-									</div>
+								)}
+							</div>
+
+							{/* Failed Card */}
+							<div
+								style={{
+									textAlign: "center",
+									padding: "20px 15px",
+									background:
+										sendingStatus.failed > 0
+											? "linear-gradient(135deg, #fee2e2, #fecaca)"
+											: "linear-gradient(135deg, #f1f5f9, #e2e8f0)",
+									borderRadius: "12px",
+									border:
+										sendingStatus.failed > 0
+											? "2px solid #ef4444"
+											: "2px solid #cbd5e1",
+									boxShadow:
+										sendingStatus.failed > 0
+											? "0 4px 6px rgba(239, 68, 68, 0.2)"
+											: "0 4px 6px rgba(203, 213, 225, 0.2)",
+									transition: "transform 0.2s",
+								}}
+								onMouseOver={(e) =>
+									(e.currentTarget.style.transform = "scale(1.05)")
+								}
+								onMouseOut={(e) =>
+									(e.currentTarget.style.transform = "scale(1)")
+								}
+							>
+								<XCircle
+									size={28}
+									style={{
+										color: sendingStatus.failed > 0 ? "#dc2626" : "#94a3b8",
+										marginBottom: "8px",
+									}}
+								/>
+								<div
+									style={{
+										fontSize: "32px",
+										fontWeight: "800",
+										color: sendingStatus.failed > 0 ? "#991b1b" : "#64748b",
+										lineHeight: "1",
+										marginBottom: "5px",
+									}}
+								>
+									{sendingStatus.failed}
 								</div>
 								<div
 									style={{
-										textAlign: "center",
-										padding: "15px",
-										background: "#e3f2fd",
-										borderRadius: "8px",
+										fontSize: "13px",
+										color: sendingStatus.failed > 0 ? "#b91c1c" : "#64748b",
+										fontWeight: "600",
 									}}
 								>
+									Failed
+								</div>
+								{sendingStatus.failed > 0 && sendingStatus.total > 0 && (
 									<div
 										style={{
-											fontSize: "24px",
-											fontWeight: "600",
-											color: "#3498db",
+											fontSize: "11px",
+											color: "#dc2626",
+											marginTop: "5px",
 										}}
 									>
-										{sendingStatus.total}
+										{Math.round(
+											(sendingStatus.failed / sendingStatus.total) * 100
+										)}
+										% Failed
 									</div>
-									<div style={{ fontSize: "13px", color: "#7f8c8d" }}>
-										Total
-									</div>
+								)}
+							</div>
+
+							{/* Total Card */}
+							<div
+								style={{
+									textAlign: "center",
+									padding: "20px 15px",
+									background: "linear-gradient(135deg, #dbeafe, #bfdbfe)",
+									borderRadius: "12px",
+									border: "2px solid #3b82f6",
+									boxShadow: "0 4px 6px rgba(59, 130, 246, 0.2)",
+									transition: "transform 0.2s",
+								}}
+								onMouseOver={(e) =>
+									(e.currentTarget.style.transform = "scale(1.05)")
+								}
+								onMouseOut={(e) =>
+									(e.currentTarget.style.transform = "scale(1)")
+								}
+							>
+								<FileText
+									size={28}
+									style={{ color: "#1e40af", marginBottom: "8px" }}
+								/>
+								<div
+									style={{
+										fontSize: "32px",
+										fontWeight: "800",
+										color: "#1e3a8a",
+										lineHeight: "1",
+										marginBottom: "5px",
+									}}
+								>
+									{sendingStatus.total}
+								</div>
+								<div
+									style={{
+										fontSize: "13px",
+										color: "#1e40af",
+										fontWeight: "600",
+									}}
+								>
+									Total Messages
+								</div>
+								<div
+									style={{
+										fontSize: "11px",
+										color: "#2563eb",
+										marginTop: "5px",
+									}}
+								>
+									{sendingStatus.sent + sendingStatus.failed} Processed
 								</div>
 							</div>
 						</div>
 
-						<div className="flex gap-2">
+						{/* Control Buttons */}
+						<div
+							style={{
+								display: "flex",
+								gap: "12px",
+								justifyContent: "center",
+								flexWrap: "wrap",
+							}}
+						>
 							{sendingStatus.status === "sending" && (
-								<button className="btn" onClick={handlePause}>
+								<button
+									className="btn"
+									onClick={handlePause}
+									style={{
+										background: "#f59e0b",
+										color: "white",
+										border: "2px solid #d97706",
+										fontWeight: "600",
+										padding: "12px 24px",
+										fontSize: "14px",
+									}}
+								>
 									<Pause size={18} />
-									Pause
+									Pause Sending
 								</button>
 							)}
 							{sendingStatus.status === "paused" && (
-								<button className="btn btn-primary" onClick={handleResume}>
+								<button
+									className="btn btn-primary"
+									onClick={handleResume}
+									style={{
+										background: "#10b981",
+										border: "2px solid #059669",
+										fontWeight: "600",
+										padding: "12px 24px",
+										fontSize: "14px",
+									}}
+								>
 									<Play size={18} />
-									Resume
+									Resume Sending
 								</button>
 							)}
 							{(sendingStatus.status === "sending" ||
 								sendingStatus.status === "paused") && (
-								<button className="btn btn-danger" onClick={handleStop}>
+								<button
+									className="btn btn-danger"
+									onClick={handleStop}
+									style={{
+										background: "#ef4444",
+										color: "white",
+										border: "2px solid #dc2626",
+										fontWeight: "600",
+										padding: "12px 24px",
+										fontSize: "14px",
+									}}
+								>
 									<Square size={18} />
-									Stop
+									Stop Sending
 								</button>
 							)}
 						</div>
 					</div>
 				</div>
 			)}
+
+			{/* Add shimmer animation CSS */}
+			<style>{`
+				@keyframes shimmer {
+					0% { transform: translateX(-100%); }
+					100% { transform: translateX(100%); }
+				}
+			`}</style>
 		</div>
 	);
 }

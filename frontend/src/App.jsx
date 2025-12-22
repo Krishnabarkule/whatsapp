@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
 import UserManagement from "./components/UserManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainApp from "./MainApp";
@@ -56,7 +55,7 @@ function AppRoutes() {
 				path="/dashboard"
 				element={
 					<ProtectedRoute>
-						<Dashboard />
+						<MainApp initialMenu="dashboard" />
 					</ProtectedRoute>
 				}
 			/>
@@ -93,6 +92,15 @@ function AppRoutes() {
 				element={
 					<ProtectedRoute>
 						<MainApp initialMenu="logs" />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/reports"
+				element={
+					<ProtectedRoute>
+						<MainApp initialMenu="reports" />
 					</ProtectedRoute>
 				}
 			/>

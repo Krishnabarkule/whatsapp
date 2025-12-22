@@ -44,6 +44,10 @@ router.post(
 	upload.single("media"),
 	checkMessageLimits,
 	async (req, res) => {
+		console.log("=== /send-bulk endpoint called ===");
+		console.log("Timestamp:", new Date().toISOString());
+		console.log("User:", req.user?.userId);
+
 		try {
 			const { sessionId, contacts, template } = req.body;
 
@@ -62,6 +66,8 @@ router.post(
 			}
 
 			const parsedContacts = JSON.parse(contacts);
+			console.log("Parsed contacts count:", parsedContacts.length);
+
 			const mediaPath = req.file ? req.file.path : null;
 
 			// Start sending in background
@@ -74,12 +80,15 @@ router.post(
 				req.user // Pass user for logging
 			);
 
+			console.log("Queue created with ID:", queueId);
+
 			res.json({
 				success: true,
 				queueId,
 				message: "Bulk sending started",
 			});
 		} catch (error) {
+			console.error("Error in /send-bulk:", error.message);
 			res.status(500).json({ error: error.message });
 		}
 	}

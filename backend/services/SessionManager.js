@@ -24,7 +24,8 @@ class SessionManager {
 		sessionId,
 		usePairingCode = false,
 		phoneNumber = null,
-		isReconnecting = false
+		isReconnecting = false,
+		userId = null
 	) {
 		// If reconnecting, remove old session first
 		if (isReconnecting && this.sessions.has(sessionId)) {
@@ -77,9 +78,13 @@ class SessionManager {
 			status: "connecting",
 			qr: null,
 			pairingCode: null,
+			userId: userId, // Store userId with session
 		};
 
 		this.sessions.set(sessionId, sessionData);
+		console.log(
+			`Session created: ${sessionId}, userId: ${userId}, status: connecting`
+		);
 
 		return sessionData;
 	}
@@ -271,6 +276,9 @@ class SessionManager {
 				id,
 				status: session.status,
 				user: session.socket.user,
+				qr: session.qr,
+				pairingCode: session.pairingCode,
+				userId: session.userId,
 			});
 		});
 		return sessions;
