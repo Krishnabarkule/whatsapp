@@ -250,6 +250,68 @@ export default function StartMessaging({
 				<p>Upload contacts, create template, and send bulk messages</p>
 			</div>
 
+			{/* Anti-Blocking Warning Banner */}
+			<div
+				style={{
+					padding: "15px 20px",
+					background: "linear-gradient(135deg, #fff3cd, #ffeaa7)",
+					border: "2px solid #f59e0b",
+					borderRadius: "12px",
+					marginBottom: "20px",
+					boxShadow: "0 4px 6px rgba(245, 158, 11, 0.2)",
+				}}
+			>
+				<div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+					<span style={{ fontSize: "24px" }}>⚠️</span>
+					<div style={{ flex: 1 }}>
+						<h4
+							style={{
+								color: "#92400e",
+								marginBottom: "8px",
+								fontSize: "16px",
+								fontWeight: "700",
+							}}
+						>
+							WhatsApp Anti-Ban Protection Active
+						</h4>
+						<ul
+							style={{
+								color: "#78350f",
+								fontSize: "13px",
+								lineHeight: "1.6",
+								margin: 0,
+								paddingLeft: "20px",
+							}}
+						>
+							<li>
+								✅ <strong>8-15 seconds</strong> delay between each message
+							</li>
+							<li>
+								✅ <strong>30-60 seconds</strong> break every 10-15 messages
+							</li>
+							<li>
+								✅ Maximum <strong>50-100 messages per hour</strong> recommended
+							</li>
+							<li>
+								⚠️ Sending to 100+ contacts increases ban risk significantly
+							</li>
+						</ul>
+						<p
+							style={{
+								marginTop: "10px",
+								fontSize: "12px",
+								color: "#78350f",
+								fontWeight: "600",
+								marginBottom: 0,
+							}}
+						>
+							💡 Tip: For large campaigns, split contacts into smaller batches
+							and send over multiple hours/days
+						</p>
+					</div>
+				</div>
+			</div>
+
 			{/* Session Selection */}
 			<div className="card" style={{ marginBottom: "20px" }}>
 				<div className="card-header">

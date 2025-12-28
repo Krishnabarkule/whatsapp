@@ -83,6 +83,11 @@ function MainApp({ initialMenu = "sessions" }) {
 			setSendingStatus(data.progress);
 		});
 
+		socket.on("batch_pause", (data) => {
+			console.log(`🛑 Taking ${data.duration}s break to avoid detection`);
+			// You can display this in a toast/notification if desired
+		});
+
 		socket.on("sending_completed", (data) => {
 			setSendingStatus(data.finalStatus);
 			// Reset sending state after completion
@@ -101,6 +106,7 @@ function MainApp({ initialMenu = "sessions" }) {
 			socket.off("session_deleted");
 			socket.off("message_sent");
 			socket.off("message_failed");
+			socket.off("batch_pause");
 			socket.off("sending_completed");
 		};
 	}, []);

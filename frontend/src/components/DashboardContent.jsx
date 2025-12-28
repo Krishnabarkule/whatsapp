@@ -63,19 +63,28 @@ export default function DashboardContent() {
 	}
 
 	return (
-		<div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-			{/* Header with Gradient and Buttons */}
-			<div className="mb-8">
-				<div className="flex justify-between items-center mb-2">
-					<div>
-						<h1 className="text-4xl font-bold bg-gradient-to-r from-[#25d366] to-[#128c7e] bg-clip-text text-transparent">
-							Welcome back, {user?.firstName}! 👋
-						</h1>
-						<p className="text-gray-600 mt-2 text-lg">
-							{user?.role === "admin"
-								? "Administrator Dashboard"
-								: user?.businessName || ""}
-						</p>
+		<div className="p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+			{/* Modern Header with Glass Effect */}
+			<div className="mb-8 bg-white bg-opacity-60 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white border-opacity-50">
+				<div className="flex justify-between items-center">
+					<div className="flex items-center gap-4">
+						<div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+							<span className="text-3xl">👋</span>
+						</div>
+						<div>
+							<h1 className="text-3xl font-extrabold text-gray-800">
+								Welcome,{" "}
+								<span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+									{user?.firstName}
+								</span>
+							</h1>
+							<p className="text-gray-600 mt-1 flex items-center gap-2">
+								<span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+								{user?.role === "admin"
+									? "Administrator Dashboard"
+									: user?.businessName || "Dashboard"}
+							</p>
+						</div>
 					</div>
 					<div className="flex items-center gap-3">
 						<button
@@ -83,103 +92,167 @@ export default function DashboardContent() {
 								loadStats();
 								if (user?.role === "admin") loadUsers();
 							}}
-							className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#25d366] to-[#128c7e] text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+							className="flex items-center gap-2 px-5 py-3 bg-white rounded-2xl hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-2 border-gray-200 group"
 						>
-							<RefreshCw size={20} />
-							<span className="font-semibold">Refresh</span>
+							<RefreshCw
+								size={18}
+								className="text-emerald-600 group-hover:rotate-180 transition-transform duration-500"
+							/>
+							<span className="font-semibold text-gray-700">Refresh</span>
 						</button>
 						<button
 							onClick={handleLogout}
-							className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200 border-2 border-red-700"
+							className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-2xl hover:shadow-xl transform hover:scale-105 transition-all duration-300"
 						>
-							<LogOut size={20} />
+							<LogOut size={18} />
 							<span className="font-semibold">Logout</span>
 						</button>
 					</div>
 				</div>
-				<div className="h-1 w-32 bg-gradient-to-r from-[#25d366] to-[#128c7e] rounded-full"></div>
 			</div>
 
 			{user?.role === "admin" ? (
 				<>
-					{/* Admin Quick Actions */}
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+					{/* Modern Admin Quick Actions with Neumorphism */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 						<button
 							onClick={() => navigate("/admin/users")}
-							className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow text-left"
+							className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 border border-gray-100"
 						>
-							<div className="flex items-center gap-4">
-								<div className="p-3 bg-blue-100 rounded-lg">
-									<Users className="text-blue-600" size={24} />
+							<div className="flex flex-col items-center text-center gap-4">
+								<div className="relative">
+									<div className="absolute inset-0 bg-blue-400 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+									<div className="relative p-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl shadow-lg group-hover:rotate-6 transition-transform duration-300">
+										<Users className="text-white" size={36} strokeWidth={2.5} />
+									</div>
 								</div>
 								<div>
-									<h3 className="text-lg font-semibold text-gray-800">
+									<h3 className="text-2xl font-bold text-gray-800 mb-2">
 										Manage Users
 									</h3>
-									<p className="text-sm text-gray-600">
-										{users.length} active users
+									<p className="text-gray-600 mb-3">
+										Control user accounts & permissions
 									</p>
+									<div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full">
+										<span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+										<span className="text-blue-700 font-bold text-lg">
+											{users.length} active
+										</span>
+									</div>
 								</div>
 							</div>
 						</button>
 
 						<button
 							onClick={() => navigate("/sessions")}
-							className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow text-left"
+							className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 border border-gray-100"
 						>
-							<div className="flex items-center gap-4">
-								<div className="p-3 bg-green-100 rounded-lg">
-									<MessageSquare className="text-green-600" size={24} />
+							<div className="flex flex-col items-center text-center gap-4">
+								<div className="relative">
+									<div className="absolute inset-0 bg-emerald-400 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+									<div className="relative p-5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-lg group-hover:rotate-6 transition-transform duration-300">
+										<MessageSquare
+											className="text-white"
+											size={36}
+											strokeWidth={2.5}
+										/>
+									</div>
 								</div>
 								<div>
-									<h3 className="text-lg font-semibold text-gray-800">
+									<h3 className="text-2xl font-bold text-gray-800 mb-2">
 										WhatsApp Sessions
 									</h3>
-									<p className="text-sm text-gray-600">Manage connections</p>
+									<p className="text-gray-600 mb-3">
+										Manage connections & QR codes
+									</p>
+									<div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full">
+										<span className="text-emerald-700 font-bold text-lg">
+											View All →
+										</span>
+									</div>
 								</div>
 							</div>
 						</button>
 
 						<button
 							onClick={() => navigate("/reports")}
-							className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition-shadow text-left"
+							className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 border border-gray-100"
 						>
-							<div className="flex items-center gap-4">
-								<div className="p-3 bg-purple-100 rounded-lg">
-									<BarChart3 className="text-purple-600" size={24} />
+							<div className="flex flex-col items-center text-center gap-4">
+								<div className="relative">
+									<div className="absolute inset-0 bg-purple-400 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+									<div className="relative p-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl shadow-lg group-hover:rotate-6 transition-transform duration-300">
+										<BarChart3
+											className="text-white"
+											size={36}
+											strokeWidth={2.5}
+										/>
+									</div>
 								</div>
 								<div>
-									<h3 className="text-lg font-semibold text-gray-800">
+									<h3 className="text-2xl font-bold text-gray-800 mb-2">
 										View Reports
 									</h3>
-									<p className="text-sm text-gray-600">Analytics & usage</p>
+									<p className="text-gray-600 mb-3">
+										Analytics, graphs & insights
+									</p>
+									<div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-full">
+										<span className="text-purple-700 font-bold text-lg">
+											Explore →
+										</span>
+									</div>
 								</div>
 							</div>
 						</button>
 					</div>
 
-					{/* Admin User Stats */}
+					{/* Modern User Stats Grid */}
 					{users.length > 0 && (
-						<div className="bg-white rounded-xl shadow-md p-6">
-							<h2 className="text-xl font-bold text-gray-800 mb-4">
-								User Overview
-							</h2>
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="bg-white bg-opacity-60 backdrop-blur-xl rounded-3xl shadow-xl p-8 border border-white border-opacity-50">
+							<div className="flex items-center justify-between mb-6">
+								<h2 className="text-2xl font-bold text-gray-800">
+									📊 User Overview
+								</h2>
+								<span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-semibold">
+									{users.length} Total Users
+								</span>
+							</div>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 								{users.slice(0, 6).map((u) => (
 									<div
 										key={u.userId}
-										className="border border-gray-200 rounded-lg p-4"
+										className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-blue-300"
 									>
-										<h3 className="font-semibold text-gray-800">
-											{u.firstName} {u.lastName}
-										</h3>
-										<p className="text-sm text-gray-600">{u.businessName}</p>
-										<div className="mt-2 text-xs text-gray-500">
-											<div>
-												Daily: {u.dailyUsage} / {u.dailyLimit}
+										<div className="flex items-start gap-3 mb-4">
+											<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+												{u.firstName.charAt(0)}
+												{u.lastName.charAt(0)}
 											</div>
-											<div>
-												Monthly: {u.monthlyUsage} / {u.monthlyLimit}
+											<div className="flex-1">
+												<h3 className="font-bold text-gray-800 text-lg">
+													{u.firstName} {u.lastName}
+												</h3>
+												<p className="text-sm text-gray-600">
+													{u.businessName}
+												</p>
+											</div>
+										</div>
+										<div className="space-y-2">
+											<div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+												<span className="text-xs font-semibold text-blue-700">
+													Daily
+												</span>
+												<span className="text-sm font-bold text-blue-900">
+													{u.dailyUsage} / {u.dailyLimit}
+												</span>
+											</div>
+											<div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+												<span className="text-xs font-semibold text-green-700">
+													Monthly
+												</span>
+												<span className="text-sm font-bold text-green-900">
+													{u.monthlyUsage} / {u.monthlyLimit}
+												</span>
 											</div>
 										</div>
 									</div>
@@ -190,368 +263,189 @@ export default function DashboardContent() {
 				</>
 			) : (
 				<>
-					{/* Interactive User Stats Cards with Enhanced Metrics */}
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-						{/* Daily Usage Card - Interactive */}
-						<div className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl shadow-2xl p-8 text-white transform hover:scale-105 hover:rotate-1 transition-all duration-500 cursor-pointer relative overflow-hidden">
-							{/* Animated Background Pattern */}
-							<div className="absolute inset-0 opacity-10">
-								<div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
-								<div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full translate-x-1/2 translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
+					{/* Stats Grid - Logs Style */}
+					<div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+						<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+							{/* Daily Usage Stat */}
+							<div className="text-center">
+								<div className="text-3xl font-bold text-blue-600 mb-1">
+									{stats?.usage?.dailyUsage || 0}
+								</div>
+								<div className="text-sm text-gray-600 mb-1">Daily Usage</div>
+								<div className="text-xs text-gray-500">
+									of {stats?.limits?.dailyLimit || 100} (
+									{(
+										((stats?.usage?.dailyUsage || 0) /
+											(stats?.limits?.dailyLimit || 100)) *
+										100
+									).toFixed(1)}
+									%)
+								</div>
 							</div>
 
-							<div className="relative z-10">
-								{/* Header with Icon and Badge */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="flex items-center gap-3">
-										<div className="p-4 bg-white bg-opacity-25 rounded-2xl backdrop-blur-md shadow-lg group-hover:rotate-12 transition-transform duration-300">
-											<Clock size={32} strokeWidth={2.5} />
-										</div>
-										<div>
-											<p className="text-xs uppercase tracking-wider opacity-90 font-semibold">
-												Today
-											</p>
-											<p className="text-sm opacity-75">Daily Messages</p>
-										</div>
-									</div>
-									<div className="bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm">
-										<span className="text-xs font-bold">24h</span>
+							{/* Monthly Usage Stat */}
+							<div className="text-center">
+								<div className="text-3xl font-bold text-green-600 mb-1">
+									{stats?.usage?.monthlyUsage || 0}
+								</div>
+								<div className="text-sm text-gray-600 mb-1">Monthly Usage</div>
+								<div className="text-xs text-gray-500">
+									of {stats?.limits?.monthlyLimit || 3000} (
+									{(
+										((stats?.usage?.monthlyUsage || 0) /
+											(stats?.limits?.monthlyLimit || 3000)) *
+										100
+									).toFixed(1)}
+									%)
+								</div>
+							</div>
+
+							{/* Yearly Usage Stat */}
+							<div className="text-center">
+								<div className="text-3xl font-bold text-purple-600 mb-1">
+									{stats?.usage?.yearlyUsage || 0}
+								</div>
+								<div className="text-sm text-gray-600 mb-1">Yearly Usage</div>
+								<div className="text-xs text-gray-500">
+									of {stats?.limits?.yearlyLimit || 36000} (
+									{(
+										((stats?.usage?.yearlyUsage || 0) /
+											(stats?.limits?.yearlyLimit || 36000)) *
+										100
+									).toFixed(1)}
+									%)
+								</div>
+							</div>
+
+							{/* Total Available */}
+							<div className="text-center">
+								<div className="text-3xl font-bold text-gray-700 mb-1">
+									{(stats?.limits?.dailyLimit || 100) -
+										(stats?.usage?.dailyUsage || 0) +
+										((stats?.limits?.monthlyLimit || 3000) -
+											(stats?.usage?.monthlyUsage || 0))}
+								</div>
+								<div className="text-sm text-gray-600 mb-1">
+									Total Remaining
+								</div>
+								<div className="text-xs text-gray-500">Available messages</div>
+							</div>
+						</div>
+					</div>
+
+					{/* Detailed Cards - Logs Style */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						{/* Daily Usage Card */}
+						<div className="bg-white rounded-xl shadow-sm p-6">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="p-3 bg-blue-100 rounded-lg">
+									<Clock
+										size={24}
+										className="text-blue-600"
+										strokeWidth={2.5}
+									/>
+								</div>
+								<div>
+									<div className="text-sm text-gray-600">Daily</div>
+									<div className="text-2xl font-bold text-gray-800">
+										{stats?.usage?.dailyUsage || 0} /{" "}
+										{stats?.limits?.dailyLimit || 100}
 									</div>
 								</div>
-
-								{/* Main Counter with Circular Progress */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="relative">
-										{/* Circular Progress Background */}
-										<svg className="w-32 h-32 transform -rotate-90">
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="rgba(255,255,255,0.2)"
-												strokeWidth="8"
-												fill="none"
-											/>
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="white"
-												strokeWidth="8"
-												fill="none"
-												strokeDasharray={`${2 * Math.PI * 56}`}
-												strokeDashoffset={`${
-													2 *
-													Math.PI *
-													56 *
-													(1 -
-														(stats?.usage?.dailyUsage || 0) /
-															(stats?.limits?.dailyLimit || 100))
-												}`}
-												strokeLinecap="round"
-												className="transition-all duration-1000"
-											/>
-										</svg>
-										{/* Counter in Center */}
-										<div className="absolute inset-0 flex items-center justify-center flex-col">
-											<p className="text-4xl font-black">
-												{stats?.usage?.dailyUsage || 0}
-											</p>
-											<p className="text-xs opacity-75 font-medium">sent</p>
-										</div>
-									</div>
-
-									<div className="text-right space-y-2">
-										<div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3">
-											<p className="text-xs opacity-90 mb-1">Target</p>
-											<p className="text-2xl font-bold">
-												{stats?.limits?.dailyLimit || 100}
-											</p>
-										</div>
-										<div className="flex items-center gap-2 text-sm">
-											<ArrowUpRight size={16} className="opacity-75" />
-											<span className="font-semibold">
-												{(
-													((stats?.usage?.dailyUsage || 0) /
-														(stats?.limits?.dailyLimit || 100)) *
-													100
-												).toFixed(1)}
-												%
-											</span>
-										</div>
-									</div>
-								</div>
-
-								{/* Progress Bar */}
-								<div className="space-y-3">
-									<div className="flex justify-between items-center text-sm">
-										<span className="opacity-90 font-medium flex items-center gap-2">
-											<Target size={14} />
-											Remaining
-										</span>
-										<span className="font-bold text-2xl">
-											{(stats?.limits?.dailyLimit || 100) -
-												(stats?.usage?.dailyUsage || 0)}
-										</span>
-									</div>
-									<div className="w-full bg-white bg-opacity-25 rounded-full h-4 overflow-hidden shadow-inner">
-										<div
-											className="bg-gradient-to-r from-white to-blue-100 h-4 rounded-full transition-all duration-1000 shadow-lg relative"
-											style={{
-												width: `${Math.min(
-													((stats?.usage?.dailyUsage || 0) /
-														(stats?.limits?.dailyLimit || 100)) *
-														100,
-													100
-												)}%`,
-											}}
-										>
-											<div className="absolute inset-0 bg-white opacity-50 animate-pulse"></div>
-										</div>
-									</div>
-								</div>
+							</div>
+							<div className="w-full bg-gray-200 rounded-full h-2">
+								<div
+									className="bg-blue-500 h-2 rounded-full transition-all"
+									style={{
+										width: `${Math.min(
+											((stats?.usage?.dailyUsage || 0) /
+												(stats?.limits?.dailyLimit || 100)) *
+												100,
+											100
+										)}%`,
+									}}
+								></div>
+							</div>
+							<div className="mt-2 text-sm text-gray-600">
+								{(stats?.limits?.dailyLimit || 100) -
+									(stats?.usage?.dailyUsage || 0)}{" "}
+								remaining
 							</div>
 						</div>
 
-						{/* Monthly Usage Card - Interactive */}
-						<div className="group bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl shadow-2xl p-8 text-white transform hover:scale-105 hover:rotate-1 transition-all duration-500 cursor-pointer relative overflow-hidden">
-							{/* Animated Background Pattern */}
-							<div className="absolute inset-0 opacity-10">
-								<div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
-								<div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-1/2 translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
+						{/* Monthly Usage Card */}
+						<div className="bg-white rounded-xl shadow-sm p-6">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="p-3 bg-green-100 rounded-lg">
+									<TrendingUp
+										size={24}
+										className="text-green-600"
+										strokeWidth={2.5}
+									/>
+								</div>
+								<div>
+									<div className="text-sm text-gray-600">Monthly</div>
+									<div className="text-2xl font-bold text-gray-800">
+										{stats?.usage?.monthlyUsage || 0} /{" "}
+										{stats?.limits?.monthlyLimit || 3000}
+									</div>
+								</div>
 							</div>
-
-							<div className="relative z-10">
-								{/* Header with Icon and Badge */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="flex items-center gap-3">
-										<div className="p-4 bg-white bg-opacity-25 rounded-2xl backdrop-blur-md shadow-lg group-hover:rotate-12 transition-transform duration-300">
-											<TrendingUp size={32} strokeWidth={2.5} />
-										</div>
-										<div>
-											<p className="text-xs uppercase tracking-wider opacity-90 font-semibold">
-												This Month
-											</p>
-											<p className="text-sm opacity-75">Monthly Messages</p>
-										</div>
-									</div>
-									<div className="bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm">
-										<span className="text-xs font-bold">30d</span>
-									</div>
-								</div>
-
-								{/* Main Counter with Circular Progress */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="relative">
-										{/* Circular Progress Background */}
-										<svg className="w-32 h-32 transform -rotate-90">
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="rgba(255,255,255,0.2)"
-												strokeWidth="8"
-												fill="none"
-											/>
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="white"
-												strokeWidth="8"
-												fill="none"
-												strokeDasharray={`${2 * Math.PI * 56}`}
-												strokeDashoffset={`${
-													2 *
-													Math.PI *
-													56 *
-													(1 -
-														(stats?.usage?.monthlyUsage || 0) /
-															(stats?.limits?.monthlyLimit || 3000))
-												}`}
-												strokeLinecap="round"
-												className="transition-all duration-1000"
-											/>
-										</svg>
-										{/* Counter in Center */}
-										<div className="absolute inset-0 flex items-center justify-center flex-col">
-											<p className="text-4xl font-black">
-												{stats?.usage?.monthlyUsage || 0}
-											</p>
-											<p className="text-xs opacity-75 font-medium">sent</p>
-										</div>
-									</div>
-
-									<div className="text-right space-y-2">
-										<div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3">
-											<p className="text-xs opacity-90 mb-1">Target</p>
-											<p className="text-2xl font-bold">
-												{stats?.limits?.monthlyLimit || 3000}
-											</p>
-										</div>
-										<div className="flex items-center gap-2 text-sm">
-											<ArrowUpRight size={16} className="opacity-75" />
-											<span className="font-semibold">
-												{(
-													((stats?.usage?.monthlyUsage || 0) /
-														(stats?.limits?.monthlyLimit || 3000)) *
-													100
-												).toFixed(1)}
-												%
-											</span>
-										</div>
-									</div>
-								</div>
-
-								{/* Progress Bar */}
-								<div className="space-y-3">
-									<div className="flex justify-between items-center text-sm">
-										<span className="opacity-90 font-medium flex items-center gap-2">
-											<Target size={14} />
-											Remaining
-										</span>
-										<span className="font-bold text-2xl">
-											{(stats?.limits?.monthlyLimit || 3000) -
-												(stats?.usage?.monthlyUsage || 0)}
-										</span>
-									</div>
-									<div className="w-full bg-white bg-opacity-25 rounded-full h-4 overflow-hidden shadow-inner">
-										<div
-											className="bg-gradient-to-r from-white to-green-100 h-4 rounded-full transition-all duration-1000 shadow-lg relative"
-											style={{
-												width: `${Math.min(
-													((stats?.usage?.monthlyUsage || 0) /
-														(stats?.limits?.monthlyLimit || 3000)) *
-														100,
-													100
-												)}%`,
-											}}
-										>
-											<div className="absolute inset-0 bg-white opacity-50 animate-pulse"></div>
-										</div>
-									</div>
-								</div>
+							<div className="w-full bg-gray-200 rounded-full h-2">
+								<div
+									className="bg-green-500 h-2 rounded-full transition-all"
+									style={{
+										width: `${Math.min(
+											((stats?.usage?.monthlyUsage || 0) /
+												(stats?.limits?.monthlyLimit || 3000)) *
+												100,
+											100
+										)}%`,
+									}}
+								></div>
+							</div>
+							<div className="mt-2 text-sm text-gray-600">
+								{(stats?.limits?.monthlyLimit || 3000) -
+									(stats?.usage?.monthlyUsage || 0)}{" "}
+								remaining
 							</div>
 						</div>
 
-						{/* Yearly Usage Card - Interactive */}
-						<div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl shadow-2xl p-8 text-white transform hover:scale-105 hover:rotate-1 transition-all duration-500 cursor-pointer relative overflow-hidden">
-							{/* Animated Background Pattern */}
-							<div className="absolute inset-0 opacity-10">
-								<div className="absolute top-1/2 left-1/2 w-40 h-40 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
-								<div className="absolute top-0 right-0 w-24 h-24 bg-white rounded-full translate-x-1/3 -translate-y-1/3 group-hover:scale-125 transition-transform duration-700"></div>
+						{/* Yearly Usage Card */}
+						<div className="bg-white rounded-xl shadow-sm p-6">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="p-3 bg-purple-100 rounded-lg">
+									<BarChart3
+										size={24}
+										className="text-purple-600"
+										strokeWidth={2.5}
+									/>
+								</div>
+								<div>
+									<div className="text-sm text-gray-600">Yearly</div>
+									<div className="text-2xl font-bold text-gray-800">
+										{stats?.usage?.yearlyUsage || 0} /{" "}
+										{stats?.limits?.yearlyLimit || 36000}
+									</div>
+								</div>
 							</div>
-
-							<div className="relative z-10">
-								{/* Header with Icon and Badge */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="flex items-center gap-3">
-										<div className="p-4 bg-white bg-opacity-25 rounded-2xl backdrop-blur-md shadow-lg group-hover:rotate-12 transition-transform duration-300">
-											<BarChart3 size={32} strokeWidth={2.5} />
-										</div>
-										<div>
-											<p className="text-xs uppercase tracking-wider opacity-90 font-semibold">
-												This Year
-											</p>
-											<p className="text-sm opacity-75">Yearly Messages</p>
-										</div>
-									</div>
-									<div className="bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm">
-										<span className="text-xs font-bold">365d</span>
-									</div>
-								</div>
-
-								{/* Main Counter with Circular Progress */}
-								<div className="flex items-center justify-between mb-6">
-									<div className="relative">
-										{/* Circular Progress Background */}
-										<svg className="w-32 h-32 transform -rotate-90">
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="rgba(255,255,255,0.2)"
-												strokeWidth="8"
-												fill="none"
-											/>
-											<circle
-												cx="64"
-												cy="64"
-												r="56"
-												stroke="white"
-												strokeWidth="8"
-												fill="none"
-												strokeDasharray={`${2 * Math.PI * 56}`}
-												strokeDashoffset={`${
-													2 *
-													Math.PI *
-													56 *
-													(1 -
-														(stats?.usage?.yearlyUsage || 0) /
-															(stats?.limits?.yearlyLimit || 36000))
-												}`}
-												strokeLinecap="round"
-												className="transition-all duration-1000"
-											/>
-										</svg>
-										{/* Counter in Center */}
-										<div className="absolute inset-0 flex items-center justify-center flex-col">
-											<p className="text-4xl font-black">
-												{stats?.usage?.yearlyUsage || 0}
-											</p>
-											<p className="text-xs opacity-75 font-medium">sent</p>
-										</div>
-									</div>
-
-									<div className="text-right space-y-2">
-										<div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3">
-											<p className="text-xs opacity-90 mb-1">Target</p>
-											<p className="text-2xl font-bold">
-												{stats?.limits?.yearlyLimit || 36000}
-											</p>
-										</div>
-										<div className="flex items-center gap-2 text-sm">
-											<ArrowUpRight size={16} className="opacity-75" />
-											<span className="font-semibold">
-												{(
-													((stats?.usage?.yearlyUsage || 0) /
-														(stats?.limits?.yearlyLimit || 36000)) *
-													100
-												).toFixed(1)}
-												%
-											</span>
-										</div>
-									</div>
-								</div>
-
-								{/* Progress Bar */}
-								<div className="space-y-3">
-									<div className="flex justify-between items-center text-sm">
-										<span className="opacity-90 font-medium flex items-center gap-2">
-											<Target size={14} />
-											Remaining
-										</span>
-										<span className="font-bold text-2xl">
-											{(stats?.limits?.yearlyLimit || 36000) -
-												(stats?.usage?.yearlyUsage || 0)}
-										</span>
-									</div>
-									<div className="w-full bg-white bg-opacity-25 rounded-full h-4 overflow-hidden shadow-inner">
-										<div
-											className="bg-gradient-to-r from-white to-purple-100 h-4 rounded-full transition-all duration-1000 shadow-lg relative"
-											style={{
-												width: `${Math.min(
-													((stats?.usage?.yearlyUsage || 0) /
-														(stats?.limits?.yearlyLimit || 36000)) *
-														100,
-													100
-												)}%`,
-											}}
-										>
-											<div className="absolute inset-0 bg-white opacity-50 animate-pulse"></div>
-										</div>
-									</div>
-								</div>
+							<div className="w-full bg-gray-200 rounded-full h-2">
+								<div
+									className="bg-purple-500 h-2 rounded-full transition-all"
+									style={{
+										width: `${Math.min(
+											((stats?.usage?.yearlyUsage || 0) /
+												(stats?.limits?.yearlyLimit || 36000)) *
+												100,
+											100
+										)}%`,
+									}}
+								></div>
+							</div>
+							<div className="mt-2 text-sm text-gray-600">
+								{(stats?.limits?.yearlyLimit || 36000) -
+									(stats?.usage?.yearlyUsage || 0)}{" "}
+								remaining
 							</div>
 						</div>
 					</div>

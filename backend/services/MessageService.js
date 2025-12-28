@@ -32,6 +32,26 @@ class MessageService {
 		console.log("User provided:", user ? `Yes (userId: ${user.userId})` : "No");
 		console.log("Contacts count:", contacts.length);
 
+		// WhatsApp safety warnings
+		if (contacts.length > 40) {
+			console.log(
+				"\n⚠️⚠️⚠️ WARNING: Sending to more than 40 contacts increases ban risk!"
+			);
+			console.log(
+				"Recommended: Send max 40-50 messages per hour to avoid detection\n"
+			);
+		}
+		if (contacts.length > 100) {
+			console.log(
+				"\n🚨🚨🚨 HIGH RISK: Sending to more than 100 contacts may trigger WhatsApp ban!"
+			);
+			console.log(
+				`Estimated time: ~${Math.round(
+					(contacts.length * 20) / 60
+				)} minutes with safety delays\n`
+			);
+		}
+
 		// Check if there's already an active queue for this session
 		for (const [existingQueueId, queue] of this.sendingQueue.entries()) {
 			if (
@@ -71,8 +91,12 @@ class MessageService {
 		}
 
 		let successCount = 0;
+		let messagesInCurrentBatch = 0;
 
 		console.log(`Starting loop for ${contacts.length} contacts`);
+		console.log(
+			"⚠️ Anti-blocking measures active: 15-25s delay between messages, long pauses every 8-12 messages to prevent 401 errors"
+		);
 
 		for (let i = 0; i < contacts.length; i++) {
 			console.log(
@@ -204,8 +228,34 @@ class MessageService {
 				this.deliveryLogs.push(log);
 				this.io.emit("message_sent", { queueId, log, progress: queueStatus });
 
-				// Delay between messages (3-5 seconds)
-				await delay(Math.random() * 2000 + 3000);
+				messagesInCurrentBatch++;
+
+				// Anti-blocking delay: 15-25 seconds between messages (safer for WhatsApp)
+				const randomDelay = Math.random() * 10000 + 15000; // 15-25 seconds
+				console.log(
+					`⏳ Waiting ${Math.round(
+						randomDelay / 1000
+					)}s before next message (anti-spam protection)`
+				);
+				await delay(randomDelay);
+
+				// Additional random pause every 8-12 messages to prevent 401 errors
+				if (messagesInCurrentBatch >= 8 + Math.floor(Math.random() * 4)) {
+					const pauseDuration = Math.random() * 60000 + 60000; // 60-120 seconds
+					console.log(
+						`\n🛑 Taking a ${Math.round(
+							pauseDuration / 1000
+						)}s break after ${messagesInCurrentBatch} messages (mimicking human behavior)\n`
+					);
+					this.io.emit("batch_pause", {
+						queueId,
+						message: `Taking a short break to avoid detection`,
+						duration: Math.round(pauseDuration / 1000),
+					});
+					await delay(pauseDuration);
+					messagesInCurrentBatch = 0;
+					console.log("✅ Break completed, resuming sending...\n");
+				}
 			} catch (error) {
 				queueStatus.failed++;
 

@@ -63,37 +63,94 @@ export default function Reports() {
 
 	return (
 		<div className="p-6">
-			{/* Header */}
-			<div className="flex justify-between items-center mb-6">
-				<div>
-					<h1 className="text-2xl font-bold text-gray-800">Usage Reports</h1>
-					<p className="text-gray-600 mt-1">Track your message utilization</p>
+			{/* Header - Logs Style */}
+			<div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+				<div className="flex justify-between items-center">
+					<div className="flex items-center gap-3">
+						<div className="p-3 bg-blue-100 rounded-lg">
+							<BarChart3 className="text-blue-600" size={28} />
+						</div>
+						<div>
+							<h1 className="text-2xl font-bold text-gray-800">
+								Usage Reports
+							</h1>
+							<p className="text-gray-600 text-sm">
+								Track your message utilization
+							</p>
+						</div>
+					</div>
+					<button
+						onClick={loadStats}
+						disabled={refreshing}
+						className="flex items-center gap-2 px-4 py-2 bg-[#25d366] text-white rounded-lg hover:bg-[#128c7e] transition-colors disabled:opacity-50"
+					>
+						<RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
+						Refresh
+					</button>
 				</div>
-				<button
-					onClick={loadStats}
-					disabled={refreshing}
-					className="flex items-center gap-2 px-4 py-2 bg-[#25d366] text-white rounded-lg hover:bg-[#128c7e] transition-colors disabled:opacity-50"
-				>
-					<RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
-					Refresh
-				</button>
 			</div>
 
-			{/* Summary Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-				<div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-3">
-							<div className="p-3 bg-blue-100 rounded-lg">
-								<Calendar className="text-blue-600" size={24} />
-							</div>
-							<div>
-								<p className="text-gray-600 text-sm">Daily Usage</p>
-								<p className="text-2xl font-bold text-gray-800">{dailyUsage}</p>
+			{/* Stats Grid - Logs Style */}
+			<div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+					{/* Daily Usage Stat */}
+					<div className="text-center">
+						<div className="text-3xl font-bold text-blue-600 mb-1">
+							{dailyUsage}
+						</div>
+						<div className="text-sm text-gray-600 mb-1">Daily Usage</div>
+						<div className="text-xs text-gray-500">
+							of {dailyLimit} ({dailyPercentage.toFixed(1)}%)
+						</div>
+					</div>
+
+					{/* Monthly Usage Stat */}
+					<div className="text-center">
+						<div className="text-3xl font-bold text-green-600 mb-1">
+							{monthlyUsage}
+						</div>
+						<div className="text-sm text-gray-600 mb-1">Monthly Usage</div>
+						<div className="text-xs text-gray-500">
+							of {monthlyLimit} ({monthlyPercentage.toFixed(1)}%)
+						</div>
+					</div>
+
+					{/* Yearly Usage Stat */}
+					<div className="text-center">
+						<div className="text-3xl font-bold text-purple-600 mb-1">
+							{yearlyUsage}
+						</div>
+						<div className="text-sm text-gray-600 mb-1">Yearly Usage</div>
+						<div className="text-xs text-gray-500">
+							of {yearlyLimit} ({yearlyPercentage.toFixed(1)}%)
+						</div>
+					</div>
+
+					{/* Total Available */}
+					<div className="text-center">
+						<div className="text-3xl font-bold text-gray-700 mb-1">
+							{dailyLimit - dailyUsage + monthlyLimit - monthlyUsage}
+						</div>
+						<div className="text-sm text-gray-600 mb-1">Total Remaining</div>
+						<div className="text-xs text-gray-500">Available messages</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Detailed Usage Cards - Logs Style */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+				<div className="bg-white rounded-xl shadow-sm p-6">
+					<div className="flex items-center gap-3 mb-4">
+						<div className="p-3 bg-blue-100 rounded-lg">
+							<Calendar className="text-blue-600" size={24} />
+						</div>
+						<div>
+							<div className="text-sm text-gray-600">Daily</div>
+							<div className="text-2xl font-bold text-gray-800">
+								{dailyUsage} / {dailyLimit}
 							</div>
 						</div>
 					</div>
-					<div className="text-sm text-gray-600 mb-2">Limit: {dailyLimit}</div>
 					<div className="w-full bg-gray-200 rounded-full h-2">
 						<div
 							className="bg-blue-500 h-2 rounded-full transition-all"
@@ -105,22 +162,17 @@ export default function Reports() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-3">
-							<div className="p-3 bg-green-100 rounded-lg">
-								<TrendingUp className="text-green-600" size={24} />
-							</div>
-							<div>
-								<p className="text-gray-600 text-sm">Monthly Usage</p>
-								<p className="text-2xl font-bold text-gray-800">
-									{monthlyUsage}
-								</p>
+				<div className="bg-white rounded-xl shadow-sm p-6">
+					<div className="flex items-center gap-3 mb-4">
+						<div className="p-3 bg-green-100 rounded-lg">
+							<TrendingUp className="text-green-600" size={24} />
+						</div>
+						<div>
+							<div className="text-sm text-gray-600">Monthly</div>
+							<div className="text-2xl font-bold text-gray-800">
+								{monthlyUsage} / {monthlyLimit}
 							</div>
 						</div>
-					</div>
-					<div className="text-sm text-gray-600 mb-2">
-						Limit: {monthlyLimit}
 					</div>
 					<div className="w-full bg-gray-200 rounded-full h-2">
 						<div
@@ -133,21 +185,18 @@ export default function Reports() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-3">
-							<div className="p-3 bg-purple-100 rounded-lg">
-								<BarChart3 className="text-purple-600" size={24} />
-							</div>
-							<div>
-								<p className="text-gray-600 text-sm">Yearly Usage</p>
-								<p className="text-2xl font-bold text-gray-800">
-									{yearlyUsage}
-								</p>
+				<div className="bg-white rounded-xl shadow-sm p-6">
+					<div className="flex items-center gap-3 mb-4">
+						<div className="p-3 bg-purple-100 rounded-lg">
+							<BarChart3 className="text-purple-600" size={24} />
+						</div>
+						<div>
+							<div className="text-sm text-gray-600">Yearly</div>
+							<div className="text-2xl font-bold text-gray-800">
+								{yearlyUsage} / {yearlyLimit}
 							</div>
 						</div>
 					</div>
-					<div className="text-sm text-gray-600 mb-2">Limit: {yearlyLimit}</div>
 					<div className="w-full bg-gray-200 rounded-full h-2">
 						<div
 							className="bg-purple-500 h-2 rounded-full transition-all"
@@ -161,7 +210,7 @@ export default function Reports() {
 			</div>
 
 			{/* Visual Chart */}
-			<div className="bg-white rounded-xl shadow-md p-6">
+			<div className="bg-white rounded-xl shadow-sm p-6 mb-6">
 				<h2 className="text-xl font-bold text-gray-800 mb-6">Usage Overview</h2>
 				<div className="space-y-6">
 					{/* Daily Bar */}
@@ -242,41 +291,48 @@ export default function Reports() {
 			</div>
 
 			{/* Status Alerts */}
-			<div className="mt-6 space-y-3">
-				{dailyPercentage >= 90 && (
-					<div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-						<div className="flex items-center gap-2">
-							<MessageSquare className="text-red-500" size={20} />
-							<p className="text-red-800 font-medium">
-								Daily limit almost reached! Only {dailyLimit - dailyUsage}{" "}
-								messages remaining.
-							</p>
-						</div>
+			{(dailyPercentage >= 90 ||
+				monthlyPercentage >= 90 ||
+				yearlyPercentage >= 90) && (
+				<div className="bg-white rounded-xl shadow-sm p-6">
+					<h3 className="text-lg font-bold text-gray-800 mb-4">⚠️ Alerts</h3>
+					<div className="space-y-3">
+						{dailyPercentage >= 90 && (
+							<div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+								<div className="flex items-center gap-2">
+									<MessageSquare className="text-red-500" size={20} />
+									<p className="text-red-800 font-medium">
+										Daily limit almost reached! Only {dailyLimit - dailyUsage}{" "}
+										messages remaining.
+									</p>
+								</div>
+							</div>
+						)}
+						{monthlyPercentage >= 90 && (
+							<div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+								<div className="flex items-center gap-2">
+									<MessageSquare className="text-orange-500" size={20} />
+									<p className="text-orange-800 font-medium">
+										Monthly limit almost reached! Only{" "}
+										{monthlyLimit - monthlyUsage} messages remaining.
+									</p>
+								</div>
+							</div>
+						)}
+						{yearlyPercentage >= 90 && (
+							<div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+								<div className="flex items-center gap-2">
+									<MessageSquare className="text-yellow-600" size={20} />
+									<p className="text-yellow-800 font-medium">
+										Yearly limit almost reached! Only{" "}
+										{yearlyLimit - yearlyUsage} messages remaining.
+									</p>
+								</div>
+							</div>
+						)}
 					</div>
-				)}
-				{monthlyPercentage >= 90 && (
-					<div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
-						<div className="flex items-center gap-2">
-							<MessageSquare className="text-orange-500" size={20} />
-							<p className="text-orange-800 font-medium">
-								Monthly limit almost reached! Only {monthlyLimit - monthlyUsage}{" "}
-								messages remaining.
-							</p>
-						</div>
-					</div>
-				)}
-				{yearlyPercentage >= 90 && (
-					<div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-						<div className="flex items-center gap-2">
-							<MessageSquare className="text-yellow-600" size={20} />
-							<p className="text-yellow-800 font-medium">
-								Yearly limit almost reached! Only {yearlyLimit - yearlyUsage}{" "}
-								messages remaining.
-							</p>
-						</div>
-					</div>
-				)}
-			</div>
+				</div>
+			)}
 		</div>
 	);
 }
